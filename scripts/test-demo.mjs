@@ -5,7 +5,7 @@ import {pathToFileURL} from 'node:url';
 import ts from 'typescript';
 const out=resolve('outputs/demo-tests');await mkdir(out,{recursive:true});
 for(const name of ['data','demo']){const source=await readFile(`app/${name}.ts`,'utf8');const result=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}});await writeFile(`${out}/${name}.mjs`,result.outputText.replace(/(['"])\.\/data\1/g,"'./data.mjs'"));}
-const {createDemoState,demoRequest}=await import(pathToFileURL(`${out}/demo.mjs`).href);
+const {createDemoState,demoRequest,refreshDemoCatalogue}=await import(pathToFileURL(`${out}/demo.mjs`).href);
 let checks=0;let state=createDemoState();
 const request=(path,body)=>{const result=demoRequest(state,path,body);state=result.state;checks++;return result.data;};
 const original=JSON.stringify(state);
@@ -31,4 +31,9 @@ request('profile',{...state.profiles['demo-buyer'],name:'Updated demo buyer'});a
 assert.throws(()=>request('upload',{}),/not available/);checks++;
 state=createDemoState();assert.equal(request('threads').threads[0].messages.length,6);assert.ok(!request('market').listings.some(l=>l.id===draft.id));
 assert.equal(state.profiles['demo-buyer'].name,'Alex Taylor');assert.equal(state.threads.length,3);
-console.log(`${checks} demo checks passed: prepared chats, role switching, replies, persisted state, listing ownership, drafts, sold-out stock, publishing, favourites and reset.`);
+const catalogue=createDemoState().listings;
+for(const field of ['title','price','description']){assert.equal(new Set(catalogue.map(l=>l[field])).size,catalogue.length,`Duplicate ${field} in catalogue`);checks++;}
+assert.equal(new Set(catalogue.map(l=>new URL(l.images[0]).pathname)).size,catalogue.length,'Duplicate product photograph');checks++;
+const old=createDemoState();delete old.catalogueVersion;old.listings[0].title='Old sample title';old.listings[1].title='My edited honey';old.listings[1].created='2026-10-30T00:00:00Z';const migrated=refreshDemoCatalogue(old);
+assert.equal(migrated.listings[0].title,catalogue[0].title);assert.equal(migrated.listings[1].title,'My edited honey');assert.deepEqual(migrated.threads,old.threads);checks++;
+console.log(`${checks} demo checks passed: chats, role switching, replies, ownership, drafts, publishing, favourites, unique listing content, catalogue refresh and reset.`);

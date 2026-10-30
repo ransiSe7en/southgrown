@@ -1,4 +1,4 @@
-import { Listing, Profile, samples, photos } from './data';
+import { Listing, Profile, samples } from './data';
 
 export const DEMO_STORAGE_KEY = 'southgrown-demo-v1';
 export const demoUsers = {
@@ -8,7 +8,7 @@ export const demoUsers = {
 export type DemoMessage = {id:string;sender:string;body:string;created:string};
 export type DemoThread = {id:string;listing:string;buyer:string;seller:string;created:string;messages:DemoMessage[]};
 export type DemoState = {
-  version:1;role:'buyer'|'seller';listings:Listing[];profiles:Record<string,Profile>;
+  version:1;catalogueVersion?:2;role:'buyer'|'seller';listings:Listing[];profiles:Record<string,Profile>;
   threads:DemoThread[];favorites:Record<string,string[]>;
 };
 
@@ -20,17 +20,24 @@ export function createDemoState():DemoState {
   Object.assign(honey,{seller:'demo-seller',sellerName:'Lakeside Growers',description:'Golden bush honey in a 500g jar. A small batch from a local beekeeper. Pickup in Mawson Lakes, or local delivery by arrangement.',unit:'500g jar',delivery:true,deliveryArea:'Mawson Lakes and Pooraka',deliveryFee:5});
   const greens=listings.find(l=>l.id==='sample-5095-vegetables-1')!;
   Object.assign(greens,{seller:'demo-seller',sellerName:'Lakeside Growers',quantity:0,description:'Fresh garden spinach, picked for local collection. This harvest has sold out; message us to ask about the next one.'});
-  listings.push({...eggs,id:'demo-draft-herbs',title:'Fresh garden herb bundle',category:'Herbs',price:4,unit:'bunch',quantity:6,images:[photos.herbs],description:'A fragrant mix of mint and parsley from our backyard garden. Cut to order for weekend pickup in Mawson Lakes.',method:'Homegrown · seller declared',active:false,harvested:''});
+  listings.push({...eggs,id:'demo-draft-herbs',title:'Fresh garden herb bundle',category:'Herbs',price:4.75,unit:'bunch',quantity:6,images:['https://images.pexels.com/photos/2073001/pexels-photo-2073001.jpeg?auto=compress&cs=tinysrgb&w=900'],description:'A fragrant mix of mint and parsley from our backyard garden. Cut to order for weekend pickup in Mawson Lakes.',method:'Homegrown · seller declared',active:false,harvested:''});
   const profiles:Record<string,Profile>={
     'demo-buyer':{name:'Alex Taylor',type:'Backyard grower',suburb:'Adelaide',postcode:'5000',bio:'Buying fresh food and supporting local growers.',methods:'',pickupTimes:'',deliveryArea:'',deliveryFee:0},
     'demo-seller':{name:'Lakeside Growers',type:'Backyard grower',suburb:'Mawson Lakes',postcode:'5095',bio:'We’re a small backyard patch in Mawson Lakes, sharing eggs, garden greens and seasonal extras with our neighbours.',methods:'Backyard-grown food, with growing details on each listing.',pickupTimes:'Saturday 9–11 am, by arrangement',deliveryArea:'Mawson Lakes and Pooraka',deliveryFee:5},
   };
   const make=(key:string,listing:string,rows:[string,string][],hour:number):DemoThread=>({id:key,listing,buyer:'demo-buyer',seller:'demo-seller',created:`2026-10-30T0${hour}:00:00.000Z`,messages:rows.map(([sender,body],i)=>({id:`${key}-${i}`,sender,body,created:`2026-10-30T0${hour}:${String(i*4).padStart(2,'0')}:00.000Z`}))});
-  return {version:1,role:'buyer',listings,profiles,favorites:{'demo-buyer':['sample-5095-eggs-1','sample-5000-fruit-1'],'demo-seller':[]},threads:[
+  return {version:1,catalogueVersion:2,role:'buyer',listings,profiles,favorites:{'demo-buyer':['sample-5095-eggs-1','sample-5000-fruit-1'],'demo-seller':[]},threads:[
     make('demo-pickup',eggs.id,[['demo-buyer','Hi! Do you have two dozen eggs available for this weekend?'],['demo-seller','Hi Alex, yes, we have two dozen ready. They’re $8 a dozen.'],['demo-buyer','Lovely. Could I collect on Saturday morning?'],['demo-seller','Absolutely. Between 9 and 11 am in Mawson Lakes works well. I’ll share the collection details privately once we confirm.'],['demo-buyer','Thanks! Around 10 am would be great. Can I pay when I collect?'],['demo-seller','That works. Two dozen for $16, with payment at collection. See you Saturday!']],1),
     make('demo-delivery',honey.id,[['demo-buyer','Hello! Is the honey available for delivery to Pooraka?'],['demo-seller','Yes, we can deliver locally on Saturday afternoon. Delivery is $5.'],['demo-buyer','Great. One 500g jar please. What would the total be?'],['demo-seller','The jar is $22, so $27 including delivery. We can agree on a time here before you share the delivery address.'],['demo-buyer','Sounds good. Would after 2 pm work?'],['demo-seller','Yes, between 2 and 3 pm is fine.']],2),
     make('demo-availability',greens.id,[['demo-buyer','Hi, I can see the spinach has sold out. Will you have more soon?'],['demo-seller','We’re hoping to pick another small batch next weekend, depending on how the garden goes.'],['demo-buyer','No problem. Could I check back on Friday?'],['demo-seller','Of course! Message me then and I’ll confirm what’s ready.']],3),
   ]};
+}
+
+// Refresh untouched catalogue examples without clearing edited listings or chats.
+export function refreshDemoCatalogue(state:DemoState):DemoState {
+  if(state.catalogueVersion===2)return state;
+  const seeds=new Map(createDemoState().listings.map(l=>[l.id,l]));
+  return {...state,catalogueVersion:2,listings:state.listings.map(l=>!l.created&&seeds.has(l.id)?{...seeds.get(l.id)!}:l)};
 }
 
 // Every demo operation is a local transition. No request or record reaches the live API.
