@@ -16,3 +16,29 @@ export const samples:Listing[] = [
  {id:'sample-greens',seller:'sample-garden',sellerName:'Sunday Garden',title:'Garden greens bundle',description:'An example seasonal greens listing. Growers can say what is in the bundle and when it will be picked.',category:'Vegetables',price:6,unit:'bunch',quantity:8,suburb:'Willunga',postcode:'5172',method:'No pesticides used · seller declared',harvested:'',pickup:true,delivery:false,deliveryFee:0,deliveryArea:'',pickupTimes:'Arrange with grower',images:[photos.vegetables],active:true,demo:true},
  {id:'sample-tomatoes',seller:'sample-patch',sellerName:'The Little Patch',title:'Vine-ripened tomatoes',description:'An example homegrown listing. Add variety, ripeness and the quantity available.',category:'Vegetables',price:7,unit:'kg',quantity:10,suburb:'Stirling',postcode:'5152',method:'Homegrown · seller declared',harvested:'',pickup:true,delivery:false,deliveryFee:0,deliveryArea:'',pickupTimes:'Arrange with grower',images:[photos.tomatoes],active:true,demo:true},
 ];
+
+// Illustrative catalogue only. These never enter the live listings database.
+const localFood: {category:string; titles:[string,string]; prices:[number,number]; unit:string; photo:string; description:string}[] = [
+ {category:'Eggs',titles:['Free-range breakfast eggs','Mixed-size backyard eggs'],prices:[8,7],unit:'dozen',photo:photos.eggs,description:'A sample egg listing with a dozen eggs per carton. Ask the grower about collection dates and availability.'},
+ {category:'Honey',titles:['Small-batch local honey','Golden bush honey'],prices:[14,22],unit:'jar',photo:photos.honey,description:'A sample honey listing from a small producer. Sellers can add the jar weight, floral source and harvest details.'},
+ {category:'Vegetables',titles:['Fresh spinach bunch','Garden tomatoes'],prices:[4,7],unit:'bunch / pack',photo:photos.vegetables,description:'A sample seasonal vegetable listing. Growers can share the variety, weight and when the food was picked.'},
+ {category:'Fruit',titles:['Backyard apples','Seasonal apple bag'],prices:[5,8],unit:'bag',photo:'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=900&q=85',description:'A sample homegrown fruit listing. Sellers can describe the variety, bag weight and ripeness.'},
+ {category:'Herbs',titles:['Garden herb bundle','Fresh mint & parsley'],prices:[3,4],unit:'bunch',photo:photos.herbs,description:'A sample herb listing from a home garden. Ask the grower what is ready to pick and how to collect it.'},
+ {category:'Dairy',titles:['Fresh pasteurised milk','Small-batch pasteurised milk'],prices:[5,7],unit:'litre',photo:'https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=900&q=85',description:'A sample listing for permitted pasteurised dairy from a food business. Real sellers should provide storage, use-by and producer details.'},
+];
+for (const place of [{suburb:'Adelaide',postcode:'5000',sellerName:'City Patch'},{suburb:'Mawson Lakes',postcode:'5095',sellerName:'Lakeside Growers'}]) {
+ for (const food of localFood) {
+  food.titles.forEach((title,index)=>samples.push({
+   id:`sample-${place.postcode}-${food.category.toLowerCase()}-${index+1}`,
+   seller:`sample-${place.postcode}-${food.category.toLowerCase()}`,
+   sellerName:food.category==='Dairy'?`${place.suburb} Dairy (sample)`:place.sellerName,
+   title,description:food.description,category:food.category,price:food.prices[index],
+   unit:food.category==='Vegetables'?(index===0?'bunch':'kg'):food.unit,
+   quantity:index===0?8:5,suburb:place.suburb,postcode:place.postcode,
+   method:food.category==='Dairy'?'Pasteurised · seller declared':food.category==='Eggs'?'Free-range · seller declared':food.category==='Honey'?'Small batch · seller declared':'Homegrown · seller declared',
+   harvested:'',pickup:true,delivery:index===1,deliveryFee:5,
+   deliveryArea:index===1?`${place.suburb} by arrangement`:'',pickupTimes:'Arrange with grower',
+   images:[food.category==='Vegetables'&&index===1?photos.tomatoes:food.photo],active:true,demo:true,
+  }));
+ }
+}
