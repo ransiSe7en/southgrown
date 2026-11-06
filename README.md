@@ -2,13 +2,17 @@
 
 A free South Australian food marketplace built with Sites and Vinext.
 
+Live site: [Southgrown](https://southgrown.lonathau.chatgpt.site/)
+
+Interactive demo: [Try Southgrown](https://southgrown.lonathau.chatgpt.site/demo)
+
 ## Included
 
 Responsive homepage, searchable marketplace, product and grower pages, signed-in seller profiles, photo uploads, editable listings, saved food and private buyer/seller conversations. D1 stores live records; R2 stores live photos. Only suburbs/postcodes are public location fields. Sample offers on the live marketplace are labelled and cannot be purchased or messaged; demo mode makes them interactive without contacting anyone.
 
 ## Demo walkthrough
 
-Open `/demo` or choose **Try demo** in the header. The toolbar switches between Alex (buyer) and Lakeside Growers (seller). Demo state is saved only in this browser under `southgrown-demo-v1`; it never writes to D1, R2, the live messaging API or a payment service. **Reset demo** restores the catalogue, saved food, seller profile, and three prepared conversations. **Exit demo** returns to the live site. Hosted Site access still uses its existing private ChatGPT gate.
+Open `/demo` or choose **Try demo** in the header. The toolbar switches between Alex (buyer) and Lakeside Growers (seller). Demo state is saved only in this browser under `southgrown-demo-v1`; it never writes to D1, R2, the live messaging API or a payment service. **Reset demo** restores the catalogue, saved food, seller profile, and three prepared conversations. **Exit demo** returns to the live site. The hosted site is public and can be viewed by anyone with the link.
 
 For a five-minute demo: browse 5095 → open the egg listing → Message grower → open the prepared pickup conversation → switch to Seller and reply → open My account to edit an active listing, show the sold-out spinach and publish the herb draft. Show the honey delivery and spinach availability chats from Messages. Online checkout stays a non-transactional preview; the optional AI helper stays disconnected.
 
@@ -41,6 +45,6 @@ The hosting manifest identifies the existing Southgrown Site. Forks should use t
 
 ## Scope
 
-The postcode check accepts SA's 5xxx range; no distance calculation or address geocoding is implemented. Filter by suburb/postcode. No certification, identity or quality-verification badges are implied. Sellers must meet applicable food-sale requirements. Production starts owner-private for review; public access is a separate Sites setting.
+The postcode check accepts SA's 5xxx range; no distance calculation or address geocoding is implemented. Filter by suburb/postcode. No certification, identity or quality-verification badges are implied. Sellers must meet applicable food-sale requirements. Public access is managed through the Sites sharing settings.
 
 Product photography is from Unsplash. Fonts: DM Sans and Manrope via Google Fonts.
